@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     # internal apps 
     'user.apps.UserConfig',
     'apps.product.apps.ProductConfig',
+    'apps.template.apps.TemplateConfig',
 
     # external apps 
     'rest_framework',

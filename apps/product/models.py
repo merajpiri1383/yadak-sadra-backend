@@ -1,15 +1,18 @@
 from django.db import models
 import uuid
 from django.utils.text import slugify
+from django.core.validators import MinValueValidator,MaxValueValidator
 
 
-class BrandCountry (models.Model) : 
+class Country (models.Model) : 
 
     id = models.UUIDField(default=uuid.uuid4,unique=True,primary_key=True)
 
     name = models.CharField(max_length=256,unique=True)
 
     slug = models.SlugField(allow_unicode=True,null=True,blank=True)
+
+    flag = models.ImageField(upload_to="product/country/",null=True,blank=True)
 
     def __str__ (self) : 
         return str(self.name)
@@ -27,7 +30,7 @@ class Brand (models.Model) :
     is_own = models.BooleanField(default=False,verbose_name="is brand is for this company ?")
 
     country = models.ForeignKey(
-        to=BrandCountry,
+        to=Country,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -47,3 +50,61 @@ class Brand (models.Model) :
     def save(self,**kwargs) : 
         self.slug = slugify(self.name,allow_unicode=True)
         return super().save(**kwargs)
+    
+
+
+class Product (models.Model) : 
+
+    id = models.UUIDField(default=uuid.uuid4,unique=True,primary_key=True)
+
+    title = models.CharField(max_length=256)
+
+    slug = models.SlugField(allow_unicode=True,null=True,blank=True)
+
+    technical_code = models.CharField(max_length=256,null=True,blank=True)
+
+    commercial_code = models.CharField(max_length=256,null=True,blank=True)
+
+    main_image = models.ImageField(upload_to="product/images")
+
+    price = models.PositiveIntegerField()
+
+    discount_percent = models.IntegerField(
+        default=0,
+        validators=[MinValueValidator(0),MaxValueValidator(100)]
+    )
+
+    brand = models.ForeignKey(
+        to=Brand,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+
+    short_description = models.TextField(null=True,blank=True)
+
+    description = models.TextField(null=True,blank=True)
+
+    def __str__ (self) : 
+        return str(self.name)
+    
+    def save(self,**kwargs) : 
+        self.slug = slugify(self.name,allow_unicode=True)
+        return super().save(**kwargs)
+    
+
+
+class ProductImage (models.Model) :
+    
+    id = models.UUIDField(default=uuid.uuid4,unique=True,primary_key=True)
+
+    product = models.ForeignKey(
+        to=Product,
+        on_delete=models.CASCADE,
+        related_name="images"
+    )
+
+    image = models.ImageField(upload_to="product/images")
+
+    def __str__ (self) : 
+        return f"{self.product.title}"
