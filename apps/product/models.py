@@ -18,6 +18,12 @@ class Country (models.Model) :
         return str(self.name)
     
 
+    def get_most_brands (self,count=5) : 
+        return Country.objects.annotate(
+            country_brands=models.Count("brand")
+        ).order_by("-country_brands")[:count]
+    
+
     def save(self,**kwarges) : 
         self.slug = slugify(self.name,allow_unicode=True)
         return super().save(**kwarges)
@@ -67,6 +73,12 @@ class Product (models.Model) :
 
     main_image = models.ImageField(upload_to="product/images")
 
+    country = models.ForeignKey(
+        to=Country,
+        on_delete=models.CASCADE,
+        related_name="products"
+    )
+
     price = models.PositiveIntegerField()
 
     discount_percent = models.IntegerField(
@@ -86,10 +98,10 @@ class Product (models.Model) :
     description = models.TextField(null=True,blank=True)
 
     def __str__ (self) : 
-        return str(self.name)
+        return str(self.title)
     
     def save(self,**kwargs) : 
-        self.slug = slugify(self.name,allow_unicode=True)
+        self.slug = slugify(self.title,allow_unicode=True)
         return super().save(**kwargs)
     
 
