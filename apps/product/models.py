@@ -97,6 +97,10 @@ class Product (models.Model) :
 
     description = models.TextField(null=True,blank=True)
 
+    time_added = models.DateTimeField(auto_now_add=True)
+
+    is_available = models.BooleanField(default=True)
+
     def __str__ (self) : 
         return str(self.title)
     
