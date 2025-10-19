@@ -2,8 +2,15 @@ from rest_framework.views import APIView
 from rest_framework.views import Response
 from rest_framework import status
 from apps.product.models import Brand,Country
-from apps.product.serializers import BrandSerializer,CountrySerializer
-from apps.template.serializers import IndexSerializer
+from apps.product.serializers import (
+    BrandSerializer,
+    CountrySerializer
+)
+from apps.template.serializers import (
+    IndexSerializer,
+    SliderConfigSerializer
+)
+from apps.template.models import SliderConfig
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -33,5 +40,9 @@ class IndexAPIView(APIView) :
                 Brand.objects.filter(is_own=True)[:6],
                 many=True,
                 context={"request":request}).data,
+            "slider" : SliderConfigSerializer(
+                SliderConfig.objects.filter(is_active=True).last(),
+                context={"request" : request}
+            ).data,
         }
         return Response(data=data,status=status.HTTP_200_OK)
