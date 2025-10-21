@@ -8,9 +8,10 @@ from apps.product.serializers import (
 )
 from apps.template.serializers import (
     IndexSerializer,
-    SliderConfigSerializer
+    SliderConfigSerializer,
+    FooterSerializer,
 )
-from apps.template.models import SliderConfig
+from apps.template.models import SliderConfig,Footer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -28,7 +29,7 @@ class IndexAPIView(APIView) :
 
         data = {
             "car_brands" : BrandSerializer(
-                Brand.objects.filter(is_own=False)[:8],
+                Brand.objects.filter(is_own=False),
                 many=True,
                 context={"request":request}).data,
             "brand_countries" : CountrySerializer(
@@ -42,7 +43,11 @@ class IndexAPIView(APIView) :
                 context={"request":request}).data,
             "slider" : SliderConfigSerializer(
                 SliderConfig.objects.filter(is_active=True).last(),
-                context={"request" : request}
+                context={"request" : request},
+            ).data,
+            "footer" : FooterSerializer(
+                Footer.objects.filter(is_active=True).last(),
+                context={"request":request},
             ).data,
         }
         return Response(data=data,status=status.HTTP_200_OK)
