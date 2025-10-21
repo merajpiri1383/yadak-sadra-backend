@@ -10,6 +10,7 @@ from apps.template.serializers import (
     IndexSerializer,
     SliderConfigSerializer,
     FooterSerializer,
+    LayoutSerializer
 )
 from apps.template.models import SliderConfig,Footer
 from drf_yasg.utils import swagger_auto_schema
@@ -45,9 +46,26 @@ class IndexAPIView(APIView) :
                 SliderConfig.objects.filter(is_active=True).last(),
                 context={"request" : request},
             ).data,
+        }
+        return Response(data=data,status=status.HTTP_200_OK)
+    
+
+
+
+
+class LayoutAPIView (APIView) : 
+
+    @swagger_auto_schema(
+        operation_summary="Header And Footer",
+        responses={
+            200 : LayoutSerializer(),
+        }
+    )
+    def get (self,request) : 
+        data = {
             "footer" : FooterSerializer(
                 Footer.objects.filter(is_active=True).last(),
                 context={"request":request},
             ).data,
         }
-        return Response(data=data,status=status.HTTP_200_OK)
+        return Response(data,status.HTTP_200_OK)

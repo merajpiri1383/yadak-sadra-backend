@@ -59,6 +59,10 @@ class FooterSerializer (serializers.ModelSerializer) :
         exclude = ["id","is_active"]
 
 
+class LayoutSerializer (serializers.Serializer) : 
+
+    footer = FooterSerializer()
+
 class IndexSerializer (serializers.Serializer) : 
 
     car_brands = BrandSerializer(many=True)
@@ -68,7 +72,4 @@ class IndexSerializer (serializers.Serializer) :
     yadak_sadra_brands = BrandSerializer(many=True)
 
     slider = SliderConfigSerializer()
-
-
-
 
