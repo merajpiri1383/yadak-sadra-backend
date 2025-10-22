@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.product.models import Brand,Country,Product
+from apps.product.models import Brand,Country,Product,ProductCategory
 
 
 class CountrySerializer (serializers.ModelSerializer) : 
@@ -31,3 +31,10 @@ class ProductSerializer (serializers.ModelSerializer) :
         context = super().to_representation(instance)
         context["time_added"] = instance.time_added.strftime("%Y-%M-%d")
         return context
+
+
+class ProductCategorySerializer (serializers.ModelSerializer) : 
+
+    class Meta : 
+        model = ProductCategory
+        exclude = ["id"]

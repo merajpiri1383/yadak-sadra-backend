@@ -4,6 +4,7 @@ from django.utils.text import slugify
 from django.core.validators import MinValueValidator,MaxValueValidator
 
 
+
 class Country (models.Model) : 
 
     id = models.UUIDField(default=uuid.uuid4,unique=True,primary_key=True)
@@ -58,10 +59,32 @@ class Brand (models.Model) :
         return super().save(**kwargs)
     
 
+class ProductCategory (models.Model) : 
+
+    id = models.UUIDField(default=uuid.uuid4,unique=True,primary_key=True)
+
+    title = models.CharField(max_length=256)
+
+    slug = models.SlugField(null=True,blank=True,allow_unicode=True)
+
+    image = models.ImageField(upload_to="media/product/product-category/")
+
+    def save(self,**kwargs) : 
+        self.slug = slugify(self.title,allow_unicode=True)
+        return super().save(**kwargs)
+
+    def __str__ (self) : 
+        return str(self.title)
 
 class Product (models.Model) : 
 
     id = models.UUIDField(default=uuid.uuid4,unique=True,primary_key=True)
+
+    category = models.ForeignKey(
+        to=ProductCategory,
+        on_delete=models.CASCADE,
+        related_name="products",
+    )
 
     title = models.CharField(max_length=256)
 
@@ -124,3 +147,5 @@ class ProductImage (models.Model) :
 
     def __str__ (self) : 
         return f"{self.product.title}"
+    
+

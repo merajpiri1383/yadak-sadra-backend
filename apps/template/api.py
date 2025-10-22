@@ -1,10 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.views import Response
 from rest_framework import status
-from apps.product.models import Brand,Country
+from django.db.models import Count
+from apps.product.models import Brand,Country,ProductCategory
 from apps.product.serializers import (
     BrandSerializer,
-    CountrySerializer
+    CountrySerializer,
+    ProductCategorySerializer
 )
 from apps.template.serializers import (
     IndexSerializer,
@@ -45,6 +47,11 @@ class IndexAPIView(APIView) :
             "slider" : SliderConfigSerializer(
                 SliderConfig.objects.filter(is_active=True).last(),
                 context={"request" : request},
+            ).data,
+            "product_categories" : ProductCategorySerializer(
+                ProductCategory.objects.annotate(product_count=Count("products")).order_by("-products")[0:5],
+                many=True,
+                context={'request' : request}
             ).data,
         }
         return Response(data=data,status=status.HTTP_200_OK)

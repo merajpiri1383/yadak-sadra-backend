@@ -1,5 +1,8 @@
 from django.contrib import admin
-from apps.product.models import Brand,Country,Product,ProductImage
+from apps.product.models import (
+    Brand,Country,Product,ProductImage,
+    ProductCategory,
+)
 
 
 
@@ -21,3 +24,8 @@ class ProductImageInline (admin.TabularInline) :
 class ProductAdmin (admin.ModelAdmin) : 
     exclude = ['id',"slug"]
     inlines = [ProductImageInline]
+
+
+@admin.register(ProductCategory)
+class ProductCategoryAdmin (admin.ModelAdmin) : 
+    exclude = ["id","slug"]

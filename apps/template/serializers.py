@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.product.serializers import BrandSerializer,CountrySerializer
+from apps.product.serializers import BrandSerializer,CountrySerializer,ProductCategorySerializer
 from apps.template.models import (
     SlideBox,SlideImage,SliderConfig,
     Footer,FooterLink,GrouLinkFooter,License
@@ -73,3 +73,4 @@ class IndexSerializer (serializers.Serializer) :
 
     slider = SliderConfigSerializer()
 
+    product_categoris = ProductCategorySerializer(many=True)
