@@ -114,6 +114,7 @@ class Product (models.Model) :
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+        related_name="products"
     )
 
     short_description = models.TextField(null=True,blank=True)

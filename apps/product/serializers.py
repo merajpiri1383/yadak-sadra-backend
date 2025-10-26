@@ -2,6 +2,12 @@ from rest_framework import serializers
 from apps.product.models import Brand,Country,Product,ProductCategory
 
 
+class ProductCategorySerializer (serializers.ModelSerializer) : 
+
+    class Meta : 
+        model = ProductCategory
+        exclude = ["id"]
+
 class CountrySerializer (serializers.ModelSerializer) : 
 
     class Meta : 
@@ -19,6 +25,8 @@ class BrandSerializer (serializers.ModelSerializer) :
 
 class ProductSerializer (serializers.ModelSerializer) : 
 
+    category = ProductCategorySerializer()
+
     country = CountrySerializer()
 
     brand = BrandSerializer()
@@ -33,8 +41,9 @@ class ProductSerializer (serializers.ModelSerializer) :
         return context
 
 
-class ProductCategorySerializer (serializers.ModelSerializer) : 
 
-    class Meta : 
-        model = ProductCategory
-        exclude = ["id"]
+class ProductCategoryResponseSerializer (serializers.Serializer) : 
+
+    products = ProductSerializer(many=True)
+
+    count = serializers.IntegerField()
