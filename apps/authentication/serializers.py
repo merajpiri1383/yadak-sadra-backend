@@ -25,6 +25,12 @@ class RegisterSerializer (serializers.ModelSerializer) :
                 "and at least have 8 chatacter"})
         return super().validate(attrs)
     
+    def create(self, validated_data):
+        if "password" in validated_data : 
+            user = User.objects.create(**validated_data)
+            user.set_password(validated_data["password"])
+            user.save()
+        return user
 
 
 class UserSerializer (serializers.ModelSerializer) : 
@@ -33,3 +39,12 @@ class UserSerializer (serializers.ModelSerializer) :
         model = User
         fields = ["username","phone"]
 
+
+
+class LoginResponseSerializer (serializers.Serializer) : 
+
+    user = UserSerializer()
+
+    access_token = serializers.CharField()
+
+    refresh_token = serializers.CharField()
