@@ -1,8 +1,11 @@
 import uuid
+import hashlib
+import random
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin
-from user.manager import UserManager
 from django.core.validators import MinLengthValidator,MaxLengthValidator
+from user.manager import UserManager
+
 
 
 class User (AbstractBaseUser,PermissionsMixin) : 
@@ -19,12 +22,7 @@ class User (AbstractBaseUser,PermissionsMixin) :
         ]
         )
     
-    opt_code = models.SlugField(
-        validators=[
-            MinLengthValidator(4),
-            MaxLengthValidator(6)
-        ]
-    )
+    opt_code_hashed = models.CharField(null=True,blank=True,max_length=256)
     
     is_active = models.BooleanField(default=False,)
 
@@ -40,3 +38,9 @@ class User (AbstractBaseUser,PermissionsMixin) :
 
     def __str__ (self) : 
         return f"{self.username} -- {self.phone}"
+    
+    def change_otp_code (self,code) : 
+        random_code = str(code).encode("utf-8")
+        hashed_random_code = hashlib.sha256(random_code)
+        self.opt_code_hashed = hashed_random_code.hexdigest()
+        self.save()

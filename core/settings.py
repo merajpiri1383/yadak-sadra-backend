@@ -21,6 +21,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -33,12 +34,14 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'apps.product.apps.ProductConfig',
     'apps.template.apps.TemplateConfig',
+    'apps.authentication.apps.AuthenticationConfig',
 
     # external apps 
     'rest_framework',
     'drf_yasg',
     'corsheaders',
     'nested_inline',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -95,6 +98,19 @@ DATABASES = {
 }
 
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES" : [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ]
+}
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME" : timedelta(minutes=1),
+    "SLIDING_TOKEN_REFRESH_LIFETIME" : timedelta(minutes=5),
+    "SLIDING_TOKEN_LIFETIME" : timedelta(minutes=10),
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -137,3 +153,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TIMEZONE = "UTC"

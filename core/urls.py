@@ -18,6 +18,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("template/",include("apps.template.urls")),
     path("product/",include("apps.product.urls")),
+    path("auth/",include("apps.authentication.urls")),
     path("",schema.with_ui("swagger",cache_timeout=0),name="swagger"),
 ]
 
