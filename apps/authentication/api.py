@@ -44,7 +44,6 @@ class RegisterAPIView (APIView) :
             return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)
         
 
-
 class ActivateUserAPIView (APIView) : 
 
     @swagger_auto_schema(
@@ -76,7 +75,7 @@ class ActivateUserAPIView (APIView) :
         try : 
             user = get_user_model().objects.get(phone=phone)
         except get_user_model().DoesNotExist : 
-            return Response({"error" : "user does not exist ."})
+            return Response({"error" : "user does not exist ."},status.HTTP_400_BAD_REQUEST)
         
         # change otp code to hashed
         hashed_otp = hashlib.sha256(str(otp_code).encode("utf-8"))
@@ -91,7 +90,7 @@ class ActivateUserAPIView (APIView) :
             }
             return Response(data,status.HTTP_200_OK)
         else : 
-            return Response({"error" : "invalid otp_code ."},status.HTTP_200_OK)
+            return Response({"error" : "invalid otp_code ."},status.HTTP_400_BAD_REQUEST)
         
 
 class ChangeUserPassword (APIView) :
@@ -171,3 +170,28 @@ class LoginAPIView (APIView) :
             return Response({"password" : "password is incorrect ."},status.HTTP_400_BAD_REQUEST)
     
 
+class SendOptCodeAPIView (APIView) : 
+
+    @swagger_auto_schema(
+        operation_summary="Send Otp Code",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "phone" : openapi.Schema(type=openapi.TYPE_STRING),
+            },
+            required=["phone"],
+        )
+    )
+    def post (self,request) : 
+        try : 
+            phone = request.data.get("phone")
+        except : 
+            return Response({"error": "phone is required ."},status=status.HTTP_400_BAD_REQUEST)
+        
+        try : 
+            user = get_user_model().objects.get(phone=phone)
+        except get_user_model().DoesNotExist : 
+            return Response({"error" : "user does not exist ."},status.HTTP_400_BAD_REQUEST)
+        
+        send_otp.apply_async(args=[user.id])
+        return Response({"data": "opt has been sent ."},status.HTTP_200_OK)

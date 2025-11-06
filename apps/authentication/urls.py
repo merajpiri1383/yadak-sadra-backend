@@ -13,4 +13,6 @@ urlpatterns = [
     path("token/refresh/",TokenRefreshView.as_view(),name="refresh-token"),
 
     path("login/",api.LoginAPIView.as_view(),name="login"),
+
+    path("send-otp/",api.SendOptCodeAPIView.as_view(),name="send-otp"),
 ]

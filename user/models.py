@@ -19,7 +19,8 @@ class User (AbstractBaseUser,PermissionsMixin) :
         validators=[
             MinLengthValidator(11),
             MaxLengthValidator(11),
-        ]
+        ],
+        unique=True,
         )
     
     opt_code_hashed = models.CharField(null=True,blank=True,max_length=256)
