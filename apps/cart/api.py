@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from apps.product.models import Product
 from apps.cart.models import Cart,CartProduct
+from apps.cart.serializers import CartSerializer
 from drf_yasg.utils import swagger_auto_schema
 
 
@@ -46,8 +47,6 @@ class ProductCartHandelerAPIView (APIView) :
         return Response({"data" : "product has been decreased sucessfully"},status.HTTP_200_OK)
     
 
-
-
 class DeleteProductCartAPIView (APIView) : 
 
     permission_classes = [IsAuthenticated]
@@ -68,3 +67,23 @@ class DeleteProductCartAPIView (APIView) :
         if product_cart : 
             product_cart.delete()
         return Response({"data": "product has been deleted"},status.HTTP_204_NO_CONTENT)
+    
+
+class CartDetailAPIView (APIView) : 
+
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="Cart Detail",
+        responses={
+            "200" : CartSerializer()
+        }
+    )
+    def get (self,request) : 
+        cart,_ = Cart.objects.get_or_create(
+            user=request.user,
+            is_open=True,
+            is_paid=False
+        )
+        data = CartSerializer(cart,context={'request' : request}).data
+        return Response(data,status.HTTP_200_OK)
