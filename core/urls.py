@@ -19,6 +19,7 @@ urlpatterns = [
     path("template/",include("apps.template.urls")),
     path("product/",include("apps.product.urls")),
     path("auth/",include("apps.authentication.urls")),
+    path("cart/",include("apps.cart.urls")),
     path("",schema.with_ui("swagger",cache_timeout=0),name="swagger"),
 ]
 

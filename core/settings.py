@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'apps.product.apps.ProductConfig',
     'apps.template.apps.TemplateConfig',
     'apps.authentication.apps.AuthenticationConfig',
+    'apps.cart.apps.CartConfig',
 
     # external apps 
     'rest_framework',
@@ -106,9 +107,9 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME" : timedelta(minutes=1),
-    "SLIDING_TOKEN_REFRESH_LIFETIME" : timedelta(minutes=5),
-    "SLIDING_TOKEN_LIFETIME" : timedelta(minutes=10),
+    "ACCESS_TOKEN_LIFETIME" : timedelta(minutes=20),
+    "SLIDING_TOKEN_REFRESH_LIFETIME" : timedelta(hours=2),
+    "SLIDING_TOKEN_LIFETIME" : timedelta(days=1),
 }
 
 # Password validation
