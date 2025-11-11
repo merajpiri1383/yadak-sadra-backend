@@ -1,7 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from apps.product.models import ProductCategory,Brand,Country
+from django.http import HttpRequest
+from django.contrib.postgres.search import SearchQuery,SearchVector,SearchRank
+from apps.product.models import ProductCategory,Brand,Country,Product
 from apps.product.serializers import (
     ProductSerializer,ProductCategoryResponseSerializer,
     BrandSerializer,CountrySerializer,
@@ -68,4 +70,32 @@ class ProductCategoryAPIView (APIView) :
                 context={'request' : request}
             ).data,
         }
+        return Response(data,status.HTTP_200_OK)
+    
+
+
+class ProductSearchAPIView (APIView) : 
+
+    @swagger_auto_schema(
+        operation_summary="Search Product",
+        operation_description="?search=....",
+        responses={
+            200 : ProductSerializer(many=True),
+        }
+    )
+    def get (self,request : HttpRequest) : 
+        search_param = request.query_params.get("search")
+        objects = []
+        if search_param : 
+            vector = SearchVector("title","short_description","description")
+            search_query = SearchQuery(search_param)
+            objects = Product.objects.annotate(
+                search=vector,
+                rank=SearchRank(vector,search_query)
+            ).filter(search=search_query).order_by("-rank")
+        data = ProductSerializer(
+            objects,
+            many=True,
+            context={"request" : request}
+        ).data
         return Response(data,status.HTTP_200_OK)
