@@ -44,6 +44,7 @@ class ProductCartHandelerAPIView (APIView) :
             self.cart_product.delete()
         else : 
             self.cart_product.count = self.cart_product.count - 1
+            self.cart_product.save()
         return Response({"data" : "product has been decreased sucessfully"},status.HTTP_200_OK)
     
 
@@ -55,6 +56,7 @@ class DeleteProductCartAPIView (APIView) :
         operation_summary="Delete Product From Cart"
     )
     def delete (self,request,product_id) : 
+
         try : 
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist : 
@@ -64,6 +66,7 @@ class DeleteProductCartAPIView (APIView) :
         except : 
             return Response({"error" : "user hasnt got any active cart"},status.HTTP_400_BAD_REQUEST)
         product_cart = active_cart.cart_products.filter(product_id=product_id)
+        print(product_cart)
         if product_cart : 
             product_cart.delete()
         return Response({"data": "product has been deleted"},status.HTTP_204_NO_CONTENT)

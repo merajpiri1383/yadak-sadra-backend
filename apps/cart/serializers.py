@@ -14,7 +14,11 @@ class CartProductSerializer (serializers.ModelSerializer) :
 
 class CartSerializer (serializers.ModelSerializer) : 
 
-    cart_products = CartProductSerializer(many=True)
+    cart_products = serializers.SerializerMethodField(method_name="get_cart_products")
+
+    def get_cart_products (self,obj) : 
+        objects = obj.cart_products.all().order_by("id")
+        return CartProductSerializer(objects,many=True,context=self.context).data
 
     class Meta : 
         model = Cart
