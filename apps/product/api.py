@@ -99,3 +99,24 @@ class ProductSearchAPIView (APIView) :
             context={"request" : request}
         ).data
         return Response(data,status.HTTP_200_OK)
+    
+
+
+class ProductDetailAPIView (APIView) : 
+
+    @swagger_auto_schema(
+        operation_summary="Get Product Detail",
+        responses={
+            "200" : ProductSerializer(),
+        },
+    )
+    def get (self,request,slug) : 
+        try : 
+            product = Product.objects.get(slug=slug)
+        except Product.DoesNotExist :
+            return Response({"error": "product does not exist"},status.HTTP_200_OK)
+        data = ProductSerializer(product,context={"request" : request}).data
+        return Response(data) 
+
+
+

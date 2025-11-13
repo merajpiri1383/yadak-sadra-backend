@@ -1,332 +1,123 @@
-# Django Yadak Marketplace
+# Yadak Sadra Backend
 
-**Yadak Marketplace** — a Django-based web application for selling automotive spare parts ("yadak").
-This README provides an overview, setup instructions, development tips, and deployment notes so contributors and maintainers can quickly get started.
+A robust Django-based REST API for the **Yadak Sadra** automotive spare parts marketplace. This backend manages product catalogs, user authentication via OTP, shopping carts, and dynamic frontend layout configurations.
 
----
+## 🚀 Key Features
 
-## Table of contents
+### 🔐 Authentication & Users
 
-1. [Project overview](#project-overview)
-2. [Key features](#key-features)
-3. [Tech stack](#tech-stack)
-4. [Repository structure (recommended)](#repository-structure-recommended)
-5. [Requirements](#requirements)
-6. [Environment variables example](#environment-variables-example)
-7. [Local setup & development](#local-setup--development)
-8. [Database & migrations](#database--migrations)
-9. [Creating a superuser](#creating-a-superuser)
-10. [Running tests](#running-tests)
-11. [API & routes](#api--routes)
-12. [Admin & management tasks](#admin--management-tasks)
-13. [Deployment notes](#deployment-notes)
-14. [Contributing](#contributing)
-15. [License](#license)
-16. [Contact / Support](#contact--support)
+  * **Phone-based Login:** Custom User model relies on phone numbers rather than emails.
+  * **OTP Verification:** Secure login and registration using One-Time Passwords (OTP), handled asynchronously via **Celery**.
+  * **JWT Support:** Uses `rest_framework_simplejwt` for secure, token-based authentication.
 
----
+### 📦 Product Management
 
-## Project overview
+  * **Catalog Organization:** Manage Products, Brands, Countries of Origin, and Hierarchical Categories.
+  * **Advanced Search:** Implements PostgreSQL's `SearchVector` for high-performance full-text search on product titles and descriptions.
+  * **Filtering:** Filter products by brand, country, and price (cheap/expensive).
 
-Yadak Marketplace is an e-commerce platform focused on buying and selling car spare parts. It supports sellers to list parts (with SKU, compatibility metadata and images), and buyers to search, filter, and purchase parts. Features include basic catalog, user accounts, order management, admin dashboard, and optional REST API for integrations.
+### 🛒 Shopping Cart
 
-Use cases:
+  * **Logic:** Add, remove, or decrease product counts in the user's cart.
+  * **Auto-Calculation:** Uses Django Signals (`post_save`, `post_delete`) to automatically recalculate total cart prices whenever items change.
 
-* Local mechanics selling parts
-* Stores listing available stock with location/price
-* Buyers searching by car make/model/year or part number
+### 🎨 Dynamic Frontend Template
 
----
+  * **Layout Control:** API endpoints to control home page sliders, banners, and footer links dynamically from the backend admin panel.
 
-## Key features
+-----
 
-* User registration, login, profile management
-* Seller dashboards: add/edit/delete listings
-* Product catalog with images, stock, SKU, compatibility tags
-* Search & filters (make, model, year, part type, price range)
-* Shopping cart and checkout (basic) — extendable to payments
-* Order management and status tracking
-* Admin interface to moderate listings and users
-* REST API endpoints (optional) for mobile apps or partners
-* i18n-ready (support Persian/English) and currency-aware
+## 🛠 Tech Stack
 
----
+  * **Framework:** Django 5.2.7
+  * **API:** Django Rest Framework (DRF)
+  * **Database:** PostgreSQL (Required for full-text search features)
+  * **Async Tasks:** Celery + Redis
+  * **Documentation:** drf-yasg (Swagger/Redoc)
 
-## Tech stack
+-----
 
-* Python 3.11+ (or 3.10+)
-* Django 4.x (adjust if you prefer other stable versions)
-* Django REST Framework (for API)
-* PostgreSQL (recommended) or SQLite for quick local dev
-* Celery + Redis (optional — for background tasks like image processing or emails)
-* Docker & docker-compose (optional, for consistent local/dev environment)
-
----
-
-## Repository structure (recommended)
+## 📂 Project Structure
 
 ```
-yadak-marketplace/
-├─ README.md
-├─ .env.example
-├─ docker-compose.yml
-├─ Dockerfile
-├─ requirements.txt
-├─ manage.py
-├─ config/                # django project settings (config/settings/*.py)
-├─ apps/
-│  ├─ accounts/
-│  ├─ products/
-│  ├─ orders/
-│  ├─ payments/
-│  └─ api/
-└─ static/ media/
+core/                   # Project settings and configuration
+apps/
+├── authentication/     # Login, Register, OTP logic
+├── cart/               # Shopping cart models and API
+├── product/            # Product catalog and Search API
+├── template/           # Frontend layout configuration (Sliders, Footer)
+user/                   # Custom User model definition
+media/                  # User uploaded content
 ```
 
----
+-----
 
-## Requirements
+## ⚙️ Installation
 
-Install system & Python dependencies:
-
-* Python 3.12.3
-* pip
-* virtualenv or venv
-* PostgreSQL (for production)
-* Redis (optional)
-
-Python packages are declared in `requirements.txt`:
-
-* Django
-* djangorestframework
-* psycopg2
-* Pillow (image handling)
-
----
-
-## Environment variables example
-
-Create an `.env` at project root (do **not** commit secrets). Example `.env`:
-
-```
-DJANGO_SECRET_KEY=your-secret-key
-DJANGO_DEBUG=True
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_URL=postgres://user:password@db:5432/yadak_db
-DJANGO_EMAIL_HOST=smtp.example.com
-DJANGO_EMAIL_PORT=587
-EMAIL_HOST_USER=your-email@example.com
-EMAIL_HOST_PASSWORD=secret
-REDIS_URL=redis://redis:6379/0
-STRIPE_SECRET_KEY=sk_test_xxx   # optional for payments
-```
-
----
-
-## Local setup & development
-
-### 1. Clone repository
+### 1\. Clone the repository
 
 ```bash
-git clone <repo-url>
-cd yadak-marketplace
+git clone https://github.com/merajpiri1383/yadak-sadra-backend.git
+cd yadak-sadra-backend
 ```
 
-### 2. Create virtual environment and install deps
+### 2\. Set up Virtual Environment
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate         # Linux / macOS
-# .venv\Scripts\activate          # Windows PowerShell
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Set environment variables
+### 3\. Environment Configuration
 
-Copy `.env.example` to `.env` and fill values:
+Create a `.env` file in the root directory (reference: `.env.example`):
 
-```bash
-cp .env.example .env
-# edit .env
+```env
+SECRET_KEY=your_secret_key_here
+DEBUG=True
+DATABASE_NAME=your_db_name
+DATABASE_USER=your_db_user
+DATABASE_PASSWORD=your_db_password
+DATABASE_HOST=localhost
 ```
 
-(If you use `python-decouple` or `django-environ`, they will load `.env` automatically in settings.)
+### 4\. Run Infrastructure (Redis)
 
-### 4. Run migrations & collect static
+Ensure Redis is running for Celery tasks:
+
+```bash
+redis-server
+```
+
+### 5\. Database Setup
 
 ```bash
 python manage.py migrate
-python manage.py collectstatic --noinput
-```
-
-### 5. Run development server
-
-```bash
-python manage.py runserver
-# Open http://127.0.0.1:8000
-```
-
-**Docker (optional)**
-If a `docker-compose.yml` is provided:
-
-```bash
-docker-compose up --build
-# this typically starts web, db, redis services
-```
-
----
-
-## Database & migrations
-
-* Use Django migrations:
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-* If using PostgreSQL, configure `DATABASE_URL` or `DATABASES` in settings.
-* Keep migrations small and logical — one feature per migration.
-
----
-
-## Creating a superuser
-
-```bash
 python manage.py createsuperuser
 ```
 
-Then visit `/admin/` to manage products, users, and orders.
+### 6\. Run the Application
 
----
+Open two terminal tabs:
 
-## Running tests
-
-Prefer pytest or Django's test runner:
+**Terminal 1: Django Server**
 
 ```bash
-# Django default
-python manage.py test
-
-# Or with pytest
-pytest
+python manage.py runserver
 ```
 
-Aim for unit tests for models, views, API endpoints, and integration tests for checkout flows.
+**Terminal 2: Celery Worker**
 
----
-
-## API & routes (example)
-
-If using DRF, consider these endpoints:
-
-* `POST /api/auth/login/` — user login
-* `POST /api/auth/register/` — user signup
-* `GET /api/products/` — list/search products (supports query params)
-* `GET /api/products/<id>/` — product detail
-* `POST /api/products/` — create listing (seller only)
-* `PUT /api/products/<id>/` — update listing (seller or admin)
-* `POST /api/cart/` — manage cart
-* `POST /api/orders/` — place order
-* `GET /api/orders/{id}/` — order status
-
-Document API with OpenAPI/Swagger (e.g., using `drf-yasg` or `drf-spectacular`) and include examples.
-
----
-
-## Admin & management tasks
-
-* Moderation: approve or reject listings
-* Inventory: update stock counts for SKUs
-* Bulk import/export: use Django management commands (`python manage.py import_parts --file parts.csv`)
-* Scheduled tasks: use Celery for nightly inventory sync/email sending
-
----
-
-## Deployment notes
-
-* Use Gunicorn + Nginx for production.
-* Secure `DJANGO_SECRET_KEY`, set `DEBUG=False`, configure `ALLOWED_HOSTS`.
-* Use HTTPS (Let's Encrypt).
-* Configure persistent storage for `media/` (S3 or equivalent).
-* Use PostgreSQL for production; tune connection pool.
-* Run `python manage.py collectstatic` on deploy.
-* Use environment variable `DATABASE_URL` or provider-specific secrets manager.
-
-Example minimal Gunicorn systemd unit for `yadak`:
-
-```
-ExecStart=/path/to/venv/bin/gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+```bash
+celery -A core worker -l info
 ```
 
----
+-----
 
-## Security considerations
+## 📖 API Documentation
 
-* Validate and sanitize uploaded images/files.
-* Rate-limit authentication endpoints.
-* Use CSRF protection for template views.
-* Do not store payment credentials on your servers (use tokens from payment providers like Stripe).
-* Regularly update dependencies and run security scans.
+The project includes auto-generated Swagger documentation. Once the server is running, visit:
 
----
-
-## Contributing
-
-1. Fork the repo
-2. Create a feature branch: `git checkout -b feat/add-search`
-3. Write tests for new features
-4. Open a Pull Request with a clear description
-5. Follow coding standards (PEP8). Optionally include pre-commit hooks (flake8, isort, black)
-
----
-
-## Useful management commands (examples)
-
-* Create parts from CSV:
-
-  ```bash
-  python manage.py import_parts parts.csv
-  ```
-* Sync product compatibility:
-
-  ```bash
-  python manage.py sync_compatibility
-  ```
-
----
-
-## Troubleshooting
-
-* Migration errors: try `python manage.py migrate --fake appname zero` only when you know the state.
-* Static files missing: run `collectstatic` and check `STATIC_ROOT`.
-* Permissions issues on upload: ensure media directory writable by web process.
-
----
-
-## License
-
-Specify a license (e.g. MIT). Example:
-
-```
-MIT License
-See LICENSE file for details.
-```
-
----
-
-## Contact / Support
-
-For questions, bugs or feature requests, open an issue in the repository or contact the maintainers at the email listed in project settings.
-
----
-
-### Final notes
-
-This README is intended as a living document. Update it whenever you:
-
-* Add or remove major features
-* Change deployment or environment requirements
-* Introduce breaking API changes
-
-Happy building — and good luck selling yadak! 🚗🔧
+  * **Swagger UI:** `http://127.0.0.1:8000/`
+  * **Admin Panel:** `http://127.0.0.1:8000/admin/`
