@@ -6,7 +6,7 @@ from django.contrib.postgres.search import SearchQuery,SearchVector,SearchRank
 from apps.product.models import ProductCategory,Brand,Country,Product
 from apps.product.serializers import (
     ProductSerializer,ProductCategoryResponseSerializer,
-    BrandSerializer,CountrySerializer,
+    BrandSerializer,CountrySerializer,ProductDetailSerializer
 )
 from drf_yasg.utils import swagger_auto_schema
 from django.db.models import Count
@@ -27,7 +27,9 @@ class ProductCategoryAPIView (APIView) :
         params = request.GET
 
         try : 
-            products = ProductCategory.objects.get(slug=slug).products.all()
+            products = ProductCategory.objects.get(slug=slug).products.select_related(
+                "category","brand","country"
+            ).only("id","slug","title","main_image","price","country","category","brand").all()
         except : 
             return Response(
                 data={"error" : "not found"},
@@ -87,12 +89,14 @@ class ProductSearchAPIView (APIView) :
         search_param = request.query_params.get("search")
         objects = []
         if search_param : 
-            vector = SearchVector("title","short_description","description")
+            vector = SearchVector("title","short_description")
             search_query = SearchQuery(search_param)
             objects = Product.objects.annotate(
                 search=vector,
                 rank=SearchRank(vector,search_query)
-            ).filter(search=search_query).order_by("-rank")
+            ).select_related("category","brand","country").only(
+                "id","slug","title","main_image","price","country","category","brand"
+            ).filter(search=search_query).order_by("-rank")[0:6]
         data = ProductSerializer(
             objects,
             many=True,
@@ -107,7 +111,7 @@ class ProductDetailAPIView (APIView) :
     @swagger_auto_schema(
         operation_summary="Get Product Detail",
         responses={
-            "200" : ProductSerializer(),
+            "200" : ProductDetailSerializer(),
         },
     )
     def get (self,request,slug) : 
@@ -115,7 +119,7 @@ class ProductDetailAPIView (APIView) :
             product = Product.objects.get(slug=slug)
         except Product.DoesNotExist :
             return Response({"error": "product does not exist"},status.HTTP_200_OK)
-        data = ProductSerializer(product,context={"request" : request}).data
+        data = ProductDetailSerializer(product,context={"request" : request}).data
         return Response(data) 
 
 

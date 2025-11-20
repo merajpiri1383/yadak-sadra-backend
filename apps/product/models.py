@@ -88,13 +88,13 @@ class Product (models.Model) :
 
     title = models.CharField(max_length=256)
 
-    slug = models.SlugField(allow_unicode=True,null=True,blank=True)
+    slug = models.SlugField(allow_unicode=True,null=True,blank=True,max_length=256)
 
     technical_code = models.CharField(max_length=256,null=True,blank=True)
 
     commercial_code = models.CharField(max_length=256,null=True,blank=True)
 
-    main_image = models.ImageField(upload_to="product/images")
+    main_image = models.CharField(max_length=256)
 
     country = models.ForeignKey(
         to=Country,
@@ -119,8 +119,6 @@ class Product (models.Model) :
 
     short_description = models.TextField(null=True,blank=True)
 
-    description = models.TextField(null=True,blank=True)
-
     time_added = models.DateTimeField(auto_now_add=True)
 
     is_available = models.BooleanField(default=True)
@@ -144,7 +142,7 @@ class ProductImage (models.Model) :
         related_name="images"
     )
 
-    image = models.ImageField(upload_to="product/images")
+    image = models.CharField(max_length=256)
 
     def __str__ (self) : 
         return f"{self.product.title}"

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.product.models import Brand,Country,Product,ProductCategory
+from apps.product.models import Brand,Country,Product,ProductCategory,ProductImage
 
 
 class ProductCategorySerializer (serializers.ModelSerializer) : 
@@ -30,6 +30,27 @@ class ProductSerializer (serializers.ModelSerializer) :
     country = CountrySerializer()
 
     brand = BrandSerializer()
+
+    class Meta : 
+        model = Product
+        fields = ["id","slug","title","main_image","price","country","category","brand"]
+    
+
+class ProductImageSerializer (serializers.ModelSerializer) : 
+
+    class Meta : 
+        model = ProductImage
+        fields = ["image"]
+
+class ProductDetailSerializer (serializers.ModelSerializer) : 
+    
+    category = ProductCategorySerializer()
+
+    country = CountrySerializer()
+
+    brand = BrandSerializer()
+
+    images = ProductImageSerializer(many=True)
 
     class Meta : 
         model = Product
